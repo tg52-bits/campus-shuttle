@@ -1,18 +1,13 @@
 -- BASELINE QUERIES
 
 -- QUERY 1: VIEW ALL TRIPS
--- Purpose:
 -- Basic retrieval of trip records.
--- ============================================================
 
 SELECT *
 FROM trips;
 
-
 -- QUERY 2: FIND ACTIVE VEHICLES
--- Purpose:
 -- Identify vehicles currently marked as active.
--- ============================================================
 
 SELECT *
 FROM vehicles
@@ -20,9 +15,7 @@ WHERE status = 'Active';
 
 
 -- QUERY 3: TRIP DETAILS WITH VEHICLE, ROUTE AND DRIVER
--- Purpose:
 -- Demonstrates relational JOINs between core entities.
--- ============================================================
 
 SELECT
     t.trip_id,
@@ -42,9 +35,7 @@ LEFT JOIN drivers d
 
 
 -- QUERY 4: CALCULATE TRIP START DELAY
--- Purpose:
 -- Demonstrates temporal data processing.
--- ============================================================
 
 SELECT
     trip_id,
@@ -60,9 +51,7 @@ FROM trips;
 
 
 -- QUERY 5: OCCUPANCY PERCENTAGE
--- Purpose:
 -- Combines occupancy, trip and vehicle capacity data.
--- ============================================================
 
 SELECT
     o.trip_id,
@@ -81,9 +70,7 @@ JOIN vehicles v
 
 
 -- QUERY 6: AVERAGE DELAY BY ROUTE
--- Purpose:
 -- Basic analytical aggregation of delays by route.
--- ============================================================
 
 SELECT
     r.route_name,
@@ -100,10 +87,7 @@ GROUP BY r.route_name;
 
 
 -- QUERY 7: FIND HIGHLY DELAYED TRIPS
--- Purpose:
--- Identify trips whose total recorded delay is
--- at least 10 minutes.
--- ============================================================
+-- Identify trips whose total recorded delay is at least 10 minutes.
 
 SELECT
     trip_id,
@@ -114,10 +98,7 @@ HAVING SUM(delay_duration) >= 10;
 
 
 -- QUERY 8: TIME-BASED GPS QUERY
--- Purpose:
--- Retrieve vehicle positions recorded during a
--- specified time interval.
--- ============================================================
+-- Retrieve vehicle positions recorded during a specified time interval.
 
 SELECT
     vehicle_id,
@@ -133,12 +114,8 @@ ORDER BY timestamp;
 
 
 -- QUERY 9: SPATIAL QUERY
--- Purpose:
--- Find vehicle positions within 500 metres
--- of the Main Gate.
---
+-- Find vehicle positions within 500 metres of the Main Gate.
 -- Geography casting makes the distance unit metres.
--- ============================================================
 
 SELECT
     vp.vehicle_id,
@@ -164,12 +141,9 @@ ORDER BY distance_meters;
 
 
 -- QUERY 10: SPATIO-TEMPORAL QUERY
--- Purpose:
 -- Find vehicle positions that occurred:
---
 -- 1. Between 08:00 and 09:00
 -- 2. Within 500 metres of Main Gate
--- ============================================================
 
 SELECT
     vp.vehicle_id,
@@ -193,10 +167,7 @@ ORDER BY vp.timestamp;
 
 
 -- QUERY 11: VIEW ROUTE STOP ORDER
--- Purpose:
--- Demonstrates the ordered relationship between
--- routes and stops.
--- ============================================================
+-- Demonstrates the ordered relationship between routes and stops.
 
 SELECT
     r.route_name,
@@ -213,10 +184,7 @@ ORDER BY
 
 
 -- QUERY 12: STOP-LEVEL ARRIVAL DELAY
--- Purpose:
--- Calculate delay at individual stops using
--- scheduled and actual arrival times.
--- ============================================================
+-- Calculate delay at individual stops using scheduled and actual arrival times.
 
 SELECT
     tse.trip_id,
@@ -237,3 +205,18 @@ WHERE tse.actual_arrival IS NOT NULL
 ORDER BY
     tse.trip_id,
     tse.stop_sequence;
+
+
+-- QUERY 13: SPATIO-TEMPORAL QUERY
+-- Find vehicle positions inside the Hostel Zone
+SELECT
+    vp.vehicle_id,
+    vp.trip_id,
+    vp.timestamp,
+    cz.zone_name,
+    ST_AsText(vp.location) AS vehicle_location
+FROM vehicle_position vp
+JOIN campus_zones cz
+    ON ST_Intersects(vp.location, cz.boundary)
+WHERE cz.zone_name = 'Hostel Zone'
+ORDER BY vp.timestamp;
